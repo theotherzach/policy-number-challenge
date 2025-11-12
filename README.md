@@ -9,7 +9,7 @@ Kin has just recently purchased an ingenious machine to assist in reading policy
 report documents. The machine scans the paper documents for policy numbers,
 and produces a file with a number of entries which each look like this:
 ```
-    _  _     _  _  _  _  _ 
+    _  _     _  _  _  _  _
   | _| _||_||_ |_   ||_||_|
   ||_  _|  | _||_|  ||_| _|
 ```
@@ -20,8 +20,8 @@ line is blank. Each policy number should have 9 digits, all of which should be i
 range 0-9. A normal file contains around 500 entries.
 Your first task is to write a program that can take this file and parse it into actual
 numbers.
-  -  [ ] Task 1-1: Take an empty file as an argument & output nothing to stdout with an exit status of 0
-  -  [ ] Task 1-2: Take a well formed file as an argument & output `?` to stdout
+  -  [X] Task 1-1: Take an empty file as an argument & output nothing to stdout with an exit status of 0
+  -  [X] Task 1-2: Take a well formed file as an argument & output `?` to stdout
   -  [ ] Task 1-3: Parse file into rows, ouput `?` followed by a line break for each detected row to stdout
   -  [ ] Task 1-4: Split each row into character blocks. Count the blocks and output 1 `?` per block. Ideally `?????????` for each row
   -  [ ] Task 1-5: Handle malformed files with an exit code of 1 and a helpful error message if possible
@@ -82,4 +82,3 @@ as many ERR and ILL as can safely be done.
 -  [ ] Task 4-1: Fix `00000001?` to output correctly as `000000011`
 -  [ ] Task 4-2: Use an ambigous version of `00000??11` to output as `00000??11 AMB`
 -  [ ] Task 4-3: Implement a pipe / underscore replacement fix solution checked against the checksum
-
