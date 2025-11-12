@@ -100,5 +100,5 @@ RSpec.configure do |config|
 end
 
 def fixture(name)
-  File.read(File.join(File.dirname(__FILE__), '../spec/fixtures', "#{name}.txt"))
+  File.read(File.join(File.dirname(__FILE__), "../spec/fixtures", "#{name}.txt"))
 end
