@@ -10,3 +10,6 @@ Style/StringLiterals:
 
 Metrics/BlockLength:
   Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
