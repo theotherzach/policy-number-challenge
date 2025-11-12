@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require_relative '../lib/policy_ocr'
 
 describe PolicyOcr do
-  it "loads" do
+  it 'loads' do
     expect(PolicyOcr).to be_a Module
   end
 
