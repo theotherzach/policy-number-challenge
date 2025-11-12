@@ -3,4 +3,4 @@
 
 require_relative "lib/policy_ocr"
 
-puts PolicyOcr.call(ARGV[0])
+PolicyOcr.call(ARGV[0])

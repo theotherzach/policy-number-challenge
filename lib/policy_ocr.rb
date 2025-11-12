@@ -2,11 +2,15 @@
 
 module PolicyOcr
   def self.call(filename)
-    line_count = 0
-    File.foreach(filename) do
-      line_count += 1
+    rows = [[]]
+    File.foreach(filename) do |line|
+      if line.strip.empty?
+        rows.push([]) unless rows.last.empty?
+      else
+        rows.last.push(line)
+      end
     end
-
-    "?" if line_count.positive?
+    rows.reject(&:empty?)
+        .each { puts "?" }
   end
 end
