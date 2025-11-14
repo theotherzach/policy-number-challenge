@@ -1,58 +1,49 @@
 # frozen_string_literal: true
 
-RSpec.describe "features" do
-  context "empty file" do
+require "open3"
+
+RSpec.describe "CLI features" do
+  subject(:run_script) { Open3.capture3("ruby", "./po.rb", filename) }
+
+  let(:placeholder)  { "?" * 9 }
+  let(:placeholders) { ([placeholder] * lines).join("\n") + "\n" }
+
+  context "with an empty file" do
     let(:filename) { "spec/fixtures/empty.txt" }
-    it "has empty output" do
-      expect { system %(./po.rb #{filename}) }
-        .to output("")
-        .to_stdout_from_any_process
+    let(:lines) { 0 }
+
+    it("prints nothing to stdout") do
+      expect(run_script[0]).to eq("")
     end
 
-    it "has a 0 exit code" do
-      expect(system(%(./po.rb #{filename}))).to be true
+    it("exits with code 0") do
+      expect(run_script[2].exitstatus).to eq(0)
     end
   end
 
-  context "file with single row" do
+  context "with a single row" do
     let(:filename) { "spec/fixtures/single_row.txt" }
-    it "has empty output" do
-      expect { system %(./po.rb #{filename}) }
-        .to output("?????????\n")
-        .to_stdout_from_any_process
+    let(:lines) { 1 }
+
+    it("prints 9 placeholders followed by a newline") do
+      expect(run_script[0]).to eq(placeholders)
     end
 
-    it "has a 0 exit code" do
-      expect(system(%(./po.rb #{filename}))).to be true
+    it("exits with code 0") do
+      expect(run_script[2].exitstatus).to eq(0)
     end
   end
 
-  context "file with 11 rows" do
-    let(:expected_output) do
-      <<~DOC
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-      DOC
-    end
-
+  context "with 11 rows" do
     let(:filename) { "spec/fixtures/sample.txt" }
-    it "has empty output" do
-      expect { system %(./po.rb #{filename}) }
-        .to output(expected_output)
-        .to_stdout_from_any_process
+    let(:lines) { 11 }
+
+    it("prints 11 lines of 9 placeholders each") do
+      expect(run_script[0]).to eq(placeholders)
     end
 
-    it "has a 0 exit code" do
-      expect(system(%(./po.rb #{filename}))).to be true
+    it("exits with code 0") do
+      expect(run_script[2].exitstatus).to eq(0)
     end
   end
 end
