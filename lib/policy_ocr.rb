@@ -13,24 +13,30 @@ module PolicyOcr
 
       entry = Array.new(3)
 
-      File.foreach(filename).with_index do |line, i|
-        line_body = line.chomp! || line
-        group_index = i % 4
-
-        if group_index < 3
-          validate_row(line_body, i)
-          entry[group_index] = line_body
-        else
-          validate_separator(line_body, i)
-          create_num_blocks(entry) # prints placeholders (current behavior)
-          entry.fill(nil)
-        end
+      File.foreach(filename).with_index do |line, index|
+        handle_line(entry, line.chomp! || line, index)
       end
 
-      # No trailing separator required:
-      # - If we have a complete final entry (3 data lines), emit it.
-      # - If we have 1–2 lines buffered, that's malformed.
-      return unless entry.compact.any?
+      finalize_entry(entry)
+    end
+
+    def handle_line(entry, line_body, index)
+      group_index = index % 4
+
+      if group_index < 3
+        validate_row(line_body, index)
+        entry[group_index] = line_body
+        nil
+      else
+        validate_separator(line_body, index)
+        num_blocks = create_num_blocks(entry)
+        entry.fill(nil)
+        num_blocks
+      end
+    end
+
+    def finalize_entry(entry)
+      return if entry.compact.empty?
       fail("File ended without enough lines for a full entry (expected 3 data lines)") unless entry.all?
 
       create_num_blocks(entry)
@@ -44,7 +50,7 @@ module PolicyOcr
           num_blocks[i][:block].push(a)
         end
       end
-      num_blocks.each { |num_block| resolve_num_block(num_block) }
+      num_blocks.each { |nb| resolve_num_block(nb) }
       puts num_blocks.map { |e| e.fetch(:resolution) }.join
       num_blocks
     end
@@ -54,60 +60,62 @@ module PolicyOcr
       num_block
     end
 
+    # rubocop:disable Metrics/AbcSize
     def digit_map
       @digit_map ||= Hash.new("?").merge(
         [
-          [" ", "_", " "],
-          ["|", " ", "|"],
-          ["|", "_", "|"]
+          " _ ".chars.freeze,
+          "| |".chars.freeze,
+          "|_|".chars.freeze
         ].freeze => "0",
         [
-          [" ", " ", " "],
-          [" ", " ", "|"],
-          [" ", " ", "|"]
+          "   ".chars.freeze,
+          "  |".chars.freeze,
+          "  |".chars.freeze
         ].freeze => "1",
         [
-          [" ", "_", " "],
-          [" ", "_", "|"],
-          ["|", "_", " "]
+          " _ ".chars.freeze,
+          " _|".chars.freeze,
+          "|_ ".chars.freeze
         ].freeze => "2",
         [
-          [" ", "_", " "],
-          [" ", "_", "|"],
-          [" ", "_", "|"]
+          " _ ".chars.freeze,
+          " _|".chars.freeze,
+          " _|".chars.freeze
         ].freeze => "3",
         [
-          [" ", " ", " "],
-          ["|", "_", "|"],
-          [" ", " ", "|"]
+          "   ".chars.freeze,
+          "|_|".chars.freeze,
+          "  |".chars.freeze
         ].freeze => "4",
         [
-          [" ", "_", " "],
-          ["|", "_", " "],
-          [" ", "_", "|"]
+          " _ ".chars.freeze,
+          "|_ ".chars.freeze,
+          " _|".chars.freeze
         ].freeze => "5",
         [
-          [" ", "_", " "],
-          ["|", "_", " "],
-          ["|", "_", "|"]
+          " _ ".chars.freeze,
+          "|_ ".chars.freeze,
+          "|_|".chars.freeze
         ].freeze => "6",
         [
-          [" ", "_", " "],
-          [" ", " ", "|"],
-          [" ", " ", "|"]
+          " _ ".chars.freeze,
+          "  |".chars.freeze,
+          "  |".chars.freeze
         ].freeze => "7",
         [
-          [" ", "_", " "],
-          ["|", "_", "|"],
-          ["|", "_", "|"]
+          " _ ".chars.freeze,
+          "|_|".chars.freeze,
+          "|_|".chars.freeze
         ].freeze => "8",
         [
-          [" ", "_", " "],
-          ["|", "_", "|"],
-          [" ", "_", "|"]
+          " _ ".chars.freeze,
+          "|_|".chars.freeze,
+          " _|".chars.freeze
         ].freeze => "9"
       ).freeze
     end
+    # rubocop:enable Metrics/AbcSize
 
     private
 
