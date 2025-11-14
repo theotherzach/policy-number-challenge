@@ -24,7 +24,7 @@ numbers.
   -  [X] Task 1-2: Take a well formed file as an argument & output `?` to stdout
   -  [X] Task 1-3: Parse file into rows, ouput `?` followed by a line break for each detected row to stdout
   -  [X] Task 1-4: Split each row into character blocks. Count the blocks and output 1 `?` per block. Ideally `?????????` for each row
-  -  [ ] Task 1-5: Handle malformed files with an exit code of 1 and a helpful error message if possible
+  -  [X] Task 1-5: Handle malformed files with an exit code of 1 and a helpful error message if possible
   -  [ ] Task 1-6: Detect the number 1 from a file containing every number. Output `1` whenever detected, otherwise output `?`.
   -  [ ] Task 1-7: Detect every number 0-9 from a file and properly output to stdout. Use `?` as a fallback if no number is detected, but use clean files so any appearance of `?` at this point should be a bug.
 
