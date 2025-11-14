@@ -44,8 +44,25 @@ module PolicyOcr
           num_blocks[i][:block].push(a)
         end
       end
+      num_blocks.each { |num_block| resolve_num_block(num_block) }
       puts num_blocks.map { |e| e.fetch(:resolution) }.join
       num_blocks
+    end
+
+    def resolve_num_block(num_block)
+      num_block[:resolution] = recognize_block(num_block.fetch(:block))
+      num_block
+    end
+
+    def recognize_block(block)
+      one = [
+        [" ", " ", " "],
+        [" ", " ", "|"],
+        [" ", " ", "|"]
+      ]
+      return "1" if block == one
+
+      "?"
     end
 
     private

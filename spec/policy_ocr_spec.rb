@@ -21,7 +21,7 @@ describe PolicyOcr do
 
       let(:expected_result) do
         [
-          { block: [[" ", " ", " "], [" ", " ", "|"], [" ", " ", "|"]], resolution: "?" },
+          { block: [[" ", " ", " "], [" ", " ", "|"], [" ", " ", "|"]], resolution: "1" },
           { block: [[" ", "_", " "], [" ", "_", "|"], ["|", "_", " "]], resolution: "?" },
           { block: [[" ", "_", " "], [" ", "_", "|"], [" ", "_", "|"]], resolution: "?" },
           { block: [[" ", " ", " "], ["|", "_", "|"], [" ", " ", "|"]], resolution: "?" },
