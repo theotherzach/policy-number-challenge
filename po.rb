@@ -3,4 +3,9 @@
 
 require_relative "lib/policy_ocr"
 
-PolicyOcr.call(ARGV[0])
+begin
+  PolicyOcr.call(ARGV[0])
+rescue PolicyOcr::MalformedFile, Errno::ENOENT => e
+  warn e.message
+  exit 1
+end
