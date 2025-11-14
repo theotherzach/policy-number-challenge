@@ -24,9 +24,14 @@ RSpec.describe "CLI features" do
   context "with a single row" do
     let(:filename) { "spec/fixtures/single_row.txt" }
     let(:lines) { 1 }
+    let(:expected_output) do
+      <<~DOC
+        000000000
+      DOC
+    end
 
-    it("prints 9 placeholders followed by a newline") do
-      expect(run_script[0]).to eq(placeholders)
+    it("prints 9 digits followed by a newline") do
+      expect(run_script[0]).to eq(expected_output)
     end
 
     it("exits with code 0") do
@@ -39,21 +44,21 @@ RSpec.describe "CLI features" do
     let(:lines) { 11 }
     let(:expected_output) do
       <<~DOC
-        ?????????
+        000000000
         111111111
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        ?????????
-        1????????
+        222222222
+        333333333
+        444444444
+        555555555
+        666666666
+        777777777
+        888888888
+        999999999
+        123456789
       DOC
     end
 
-    it("prints 11 lines of 9 placeholders each") do
+    it("prints 11 lines numbers") do
       expect(run_script[0]).to eq(expected_output)
     end
 

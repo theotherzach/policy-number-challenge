@@ -40,7 +40,7 @@ module PolicyOcr
       num_blocks = []
       entry.each do |row|
         row.chars.each_slice(3).with_index do |(*a), i|
-          num_blocks[i] ||= { block: [], resolution: "?" }
+          num_blocks[i] ||= { block: [], resolution: "" }
           num_blocks[i][:block].push(a)
         end
       end
@@ -50,19 +50,63 @@ module PolicyOcr
     end
 
     def resolve_num_block(num_block)
-      num_block[:resolution] = recognize_block(num_block.fetch(:block))
+      num_block[:resolution] = digit_map[num_block.fetch(:block)]
       num_block
     end
 
-    def recognize_block(block)
-      one = [
-        [" ", " ", " "],
-        [" ", " ", "|"],
-        [" ", " ", "|"]
-      ]
-      return "1" if block == one
-
-      "?"
+    def digit_map
+      @digit_map ||= Hash.new("?").merge(
+        [
+          [" ", "_", " "],
+          ["|", " ", "|"],
+          ["|", "_", "|"]
+        ].freeze => "0",
+        [
+          [" ", " ", " "],
+          [" ", " ", "|"],
+          [" ", " ", "|"]
+        ].freeze => "1",
+        [
+          [" ", "_", " "],
+          [" ", "_", "|"],
+          ["|", "_", " "]
+        ].freeze => "2",
+        [
+          [" ", "_", " "],
+          [" ", "_", "|"],
+          [" ", "_", "|"]
+        ].freeze => "3",
+        [
+          [" ", " ", " "],
+          ["|", "_", "|"],
+          [" ", " ", "|"]
+        ].freeze => "4",
+        [
+          [" ", "_", " "],
+          ["|", "_", " "],
+          [" ", "_", "|"]
+        ].freeze => "5",
+        [
+          [" ", "_", " "],
+          ["|", "_", " "],
+          ["|", "_", "|"]
+        ].freeze => "6",
+        [
+          [" ", "_", " "],
+          [" ", " ", "|"],
+          [" ", " ", "|"]
+        ].freeze => "7",
+        [
+          [" ", "_", " "],
+          ["|", "_", "|"],
+          ["|", "_", "|"]
+        ].freeze => "8",
+        [
+          [" ", "_", " "],
+          ["|", "_", "|"],
+          [" ", "_", "|"]
+        ].freeze => "9"
+      ).freeze
     end
 
     private
