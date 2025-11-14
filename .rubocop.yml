@@ -8,6 +8,9 @@ Style/Documentation:
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
+Style/StringConcatenation:
+  Enabled: false
+
 Metrics/BlockLength:
   Enabled: false
 
