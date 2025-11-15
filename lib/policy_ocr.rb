@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "policy_ocr/checksum"
+
 module PolicyOcr
   class MalformedFile < StandardError; end
 
@@ -51,7 +53,22 @@ module PolicyOcr
         end
       end
       num_blocks.each { |nb| resolve_num_block(nb) }
-      puts num_blocks.map { |e| e.fetch(:resolution) }.join
+      output(num_blocks)
+    end
+
+    def output(num_blocks)
+      digits = num_blocks.map { |e| e.fetch(:resolution) }.join
+
+      out =
+        if digits.include?("?")
+          digits
+        elsif Checksum.valid?(digits)
+          digits
+        else
+          "#{digits} ERR"
+        end
+
+      puts out
       num_blocks
     end
 

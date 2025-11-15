@@ -1,7 +1,5 @@
 # Policy Number Challenge
 
-
-
 ## User Stories
 
 - [ ] User Story 1
@@ -43,8 +41,8 @@ checksum calculation:
 ```
 Your second task is to write some code that calculates the checksum for a given
 number, and identifies if it is a valid policy number.
--  [ ] Task 2-1: Using a file containing a row that parses to `000000012`, output it as `000000012 ERR`.
--  [ ] Task 2-2: Using a file containing a row that parses to `000000011`, output it as `000000011`.
+-  [X] Task 2-1: Using a file containing a row that parses to `000000050`, output it as `000000050 ERR`.
+-  [X] Task 2-2: Using a file containing a row that parses to `000000051`, output it as `000000051`.
 
 ---
 
