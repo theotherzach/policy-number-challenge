@@ -4,7 +4,16 @@
 require_relative "lib/policy_ocr"
 
 begin
-  PolicyOcr.call(ARGV[0])
+  input_filename  = ARGV[0]
+  output_filename = ARGV[1]
+
+  if output_filename
+    File.open(output_filename, "w") do |file|
+      PolicyOcr.call(input_filename, file)
+    end
+  else
+    PolicyOcr.call(input_filename)
+  end
 rescue PolicyOcr::MalformedFile, Errno::ENOENT => e
   warn e.message
   exit 1

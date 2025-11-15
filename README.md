@@ -2,7 +2,7 @@
 
 ## User Stories
 
-- [ ] User Story 1
+- [X] User Story 1
 Kin has just recently purchased an ingenious machine to assist in reading policy
 report documents. The machine scans the paper documents for policy numbers,
 and produces a file with a number of entries which each look like this:
@@ -28,7 +28,7 @@ numbers.
 
 ---
 
-- [ ] User Story 2
+- [X] User Story 2
 Having done that, you quickly realize that the ingenious machine is not in fact
 infallible. Sometimes it goes wrong in its scanning. So the next step is to validate
 that the numbers you read are in fact valid policy numbers. A valid policy number
@@ -54,7 +54,7 @@ one for each input file, in this format:
 664371495 ERR
 86110??36 ILL
 ```
--  [ ] Task 3-1: Allow the user to pass in a output file parameter and write to that file rather than stdout.
+-  [X] Task 3-1: Allow the user to pass in a output file parameter and write to that file rather than stdout.
 -  [ ] Task 3-2: Using a file with characters that don't match the number blocks, output `?` for unrecognized characters and append `ILL` to the output line, like this: `86110??36 ILL`
 
 ---

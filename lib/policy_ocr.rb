@@ -10,19 +10,19 @@ module PolicyOcr
       raise error_class, message
     end
 
-    def call(filename)
+    def call(filename, output_io = $stdout)
       validate_filename(filename)
 
       entry = Array.new(3)
 
       File.foreach(filename).with_index do |line, index|
-        handle_line(entry, line.chomp! || line, index)
+        handle_line(entry, line.chomp! || line, index, output_io)
       end
 
-      finalize_entry(entry)
+      finalize_entry(entry, output_io)
     end
 
-    def handle_line(entry, line_body, index)
+    def handle_line(entry, line_body, index, output_io)
       group_index = index % 4
 
       if group_index < 3
@@ -31,20 +31,20 @@ module PolicyOcr
         nil
       else
         validate_separator(line_body, index)
-        num_blocks = create_num_blocks(entry)
+        num_blocks = create_num_blocks(entry, output_io)
         entry.fill(nil)
         num_blocks
       end
     end
 
-    def finalize_entry(entry)
+    def finalize_entry(entry, output_io)
       return if entry.compact.empty?
       fail("File ended without enough lines for a full entry (expected 3 data lines)") unless entry.all?
 
-      create_num_blocks(entry)
+      create_num_blocks(entry, output_io)
     end
 
-    def create_num_blocks(entry)
+    def create_num_blocks(entry, output_io)
       num_blocks = []
       entry.each do |row|
         row.chars.each_slice(3).with_index do |(*a), i|
@@ -53,10 +53,10 @@ module PolicyOcr
         end
       end
       num_blocks.each { |nb| resolve_num_block(nb) }
-      output(num_blocks)
+      output(num_blocks, output_io)
     end
 
-    def output(num_blocks)
+    def output(num_blocks, output_io)
       digits = num_blocks.map { |e| e.fetch(:resolution) }.join
 
       out =
@@ -68,7 +68,7 @@ module PolicyOcr
           "#{digits} ERR"
         end
 
-      puts out
+      output_io.puts(out)
       num_blocks
     end
 
