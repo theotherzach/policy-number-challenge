@@ -46,7 +46,7 @@ number, and identifies if it is a valid policy number.
 
 ---
 
-- [ ] User Story 3
+- [X] User Story 3
 Your boss is keen to see your results. They ask you to write out a file of your findings,
 one for each input file, in this format:
 ```
@@ -55,7 +55,7 @@ one for each input file, in this format:
 86110??36 ILL
 ```
 -  [X] Task 3-1: Allow the user to pass in a output file parameter and write to that file rather than stdout.
--  [ ] Task 3-2: Using a file with characters that don't match the number blocks, output `?` for unrecognized characters and append `ILL` to the output line, like this: `86110??36 ILL`
+-  [X] Task 3-2: Using a file with characters that don't match the number blocks, output `?` for unrecognized characters and append `ILL` to the output line, like this: `86110??36 ILL`
 
 ---
 
@@ -80,3 +80,4 @@ as many ERR and ILL as can safely be done.
 -  [ ] Task 4-1: Fix `00000001?` to output correctly as `000000011`
 -  [ ] Task 4-2: Use an ambigous version of `00000??11` to output as `00000??11 AMB`
 -  [ ] Task 4-3: Implement a pipe / underscore replacement fix solution checked against the checksum
+
