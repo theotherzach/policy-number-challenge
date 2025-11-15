@@ -93,13 +93,13 @@ describe PolicyOcr do
       expect(io.string).to eq("000000050 ERR\n")
     end
 
-    it "writes digits with '?' without appending ERR" do
+    it "writes digits with '?' with ILL" do
       digits = "0000000?1"
       num_blocks = digits.chars.map { |ch| { block: nil, resolution: ch } }
 
       described_class.output(num_blocks, io)
 
-      expect(io.string).to eq("0000000?1\n")
+      expect(io.string).to eq("0000000?1 ILL\n")
     end
   end
 

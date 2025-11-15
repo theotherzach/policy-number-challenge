@@ -61,7 +61,7 @@ module PolicyOcr
 
       out =
         if digits.include?("?")
-          digits
+          "#{digits} ILL"
         elsif Checksum.valid?(digits)
           digits
         else

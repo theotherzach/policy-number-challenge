@@ -55,6 +55,23 @@ RSpec.describe "CLI features" do
     end
   end
 
+  context "with a single il row" do
+    let(:filename) { "spec/fixtures/ill_row.txt" }
+    let(:expected_output) do
+      <<~DOC
+        ??3456789 ILL
+      DOC
+    end
+
+    it("prints ? when it cannot recognize a character") do
+      expect(run_script[0]).to eq(expected_output)
+    end
+
+    it("exits with code 0") do
+      expect(run_script[2].exitstatus).to eq(0)
+    end
+  end
+
   context "with 11 rows, all parse, some pass checksum" do
     let(:filename) { "spec/fixtures/sample.txt" }
     let(:expected_output) do
