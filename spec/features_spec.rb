@@ -5,12 +5,8 @@ require "open3"
 RSpec.describe "CLI features" do
   subject(:run_script) { Open3.capture3("ruby", "./po.rb", filename) }
 
-  let(:placeholder)  { "?" * 9 }
-  let(:placeholders) { ([placeholder] * lines).join("\n") + "\n" }
-
   context "with an empty file" do
     let(:filename) { "spec/fixtures/empty.txt" }
-    let(:lines) { 0 }
 
     it("prints nothing to stdout") do
       expect(run_script[0]).to eq("")
@@ -21,9 +17,8 @@ RSpec.describe "CLI features" do
     end
   end
 
-  context "with a single row" do
+  context "with a single valid row" do
     let(:filename) { "spec/fixtures/single_row.txt" }
-    let(:lines) { 1 }
     let(:expected_output) do
       <<~DOC
         000000000
@@ -39,26 +34,25 @@ RSpec.describe "CLI features" do
     end
   end
 
-  context "with 11 rows" do
+  context "with 11 rows, all parse, some pass checksum" do
     let(:filename) { "spec/fixtures/sample.txt" }
-    let(:lines) { 11 }
     let(:expected_output) do
       <<~DOC
         000000000
-        111111111
-        222222222
-        333333333
-        444444444
-        555555555
-        666666666
-        777777777
-        888888888
-        999999999
+        111111111 ERR
+        222222222 ERR
+        333333333 ERR
+        444444444 ERR
+        555555555 ERR
+        666666666 ERR
+        777777777 ERR
+        888888888 ERR
+        999999999 ERR
         123456789
       DOC
     end
 
-    it("prints 11 lines numbers") do
+    it("prints 11 numbers") do
       expect(run_script[0]).to eq(expected_output)
     end
 
@@ -67,9 +61,7 @@ RSpec.describe "CLI features" do
     end
   end
 
-  context "malformed files (fixtures)" do
-    let(:lines) { 0 }
-
+  describe "malformed files" do
     context "entry line not 27 chars" do
       let(:filename) { "spec/fixtures/malformed_bad_width_line1.txt" }
 
