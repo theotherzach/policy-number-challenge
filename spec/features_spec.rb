@@ -1,9 +1,30 @@
 # frozen_string_literal: true
 
 require "open3"
+require "tempfile"
 
 RSpec.describe "CLI features" do
   subject(:run_script) { Open3.capture3("ruby", "./po.rb", filename) }
+
+  context "with an output file parameter" do
+    let(:input_filename) { "spec/fixtures/sample.txt" }
+
+    it "writes the same content to the file that would have gone to stdout" do
+      expected_stdout, = Open3.capture3("ruby", "./po.rb", input_filename)
+
+      Tempfile.create("policy_ocr_output") do |file|
+        file_path = file.path
+        file.close # this can be a gotcha on some platforms
+
+        success = system("ruby", "./po.rb", input_filename, file_path)
+        expect(success).to be true
+
+        written = File.read(file_path)
+        expect(written).to eq(expected_stdout)
+      end
+      # tmpfile handles cleanup automatically
+    end
+  end
 
   context "with an empty file" do
     let(:filename) { "spec/fixtures/empty.txt" }
