@@ -8,14 +8,8 @@ module PolicyOcr
       def call(entry)
         num_blocks = build_blocks(entry)
         digits = resolve_digits(num_blocks)
-
-        if digits.include?("?")
-          "#{digits} ILL"
-        elsif Checksum.valid?(digits)
-          digits
-        else
-          "#{digits} ERR"
-        end
+        error = error_for(digits)
+        format_line(digits, error)
       end
 
       private
@@ -24,20 +18,32 @@ module PolicyOcr
         num_blocks = []
 
         entry.each do |row|
-          row.chars.each_slice(3).with_index do |(*chars), i|
-            num_blocks[i] ||= { block: [], resolution: "" }
-            num_blocks[i][:block] << chars
+          row.chars.each_slice(3).with_index do |(*a), i|
+            num_blocks[i] ||= { block: [], char: "" }
+            num_blocks[i][:block] << a
           end
+        end
+
+        num_blocks.each do |nb|
+          nb[:char] = digit_map[nb[:block]]
         end
 
         num_blocks
       end
 
       def resolve_digits(num_blocks)
-        num_blocks.each do |nb|
-          nb[:resolution] = digit_map[nb[:block]]
-        end
-        num_blocks.map { |b| b[:resolution] }.join
+        num_blocks.map { |b| b[:char] }.join
+      end
+
+      def error_for(digits)
+        return "ILL" if digits.include?("?")
+        return "ERR" unless Checksum.valid?(digits)
+
+        nil
+      end
+
+      def format_line(digits, error)
+        error ? "#{digits} #{error}" : digits
       end
 
       # rubocop:disable Metrics/AbcSize
