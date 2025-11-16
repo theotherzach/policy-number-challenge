@@ -1,6 +1,31 @@
 # Policy Number Challenge
 
-## User Stories
+
+## `po.rb` – OCR Policy Number Parser
+
+`po.rb` reads OCR-encoded policy numbers from a file and outputs the decoded
+values along with validation results.
+
+### Usage
+
+```bash
+./po.rb -h
+./po.rb INPUT_FILE [OUTPUT_FILE]
+
+
+./po.rb sample.txt
+./po.rb sample.txt output.txt
+```
+
+### Running Specs
+
+```bash
+bundle install
+rubocop
+rspec
+```
+
+### User Stories
 
 - [X] User Story 1
 Kin has just recently purchased an ingenious machine to assist in reading policy
@@ -76,8 +101,3 @@ valid checksum, then use that. If there are several options, the status should b
 AMB. If you still can't work out what it should be, the status should be reported ILL.
 Your final task is to write code that does the guess work described above to remove
 as many ERR and ILL as can safely be done.
-
--  [ ] Task 4-1: Fix `00000001?` to output correctly as `000000011`
--  [ ] Task 4-2: Use an ambigous version of `00000??11` to output as `00000??11 AMB`
--  [ ] Task 4-3: Implement a pipe / underscore replacement fix solution checked against the checksum
-

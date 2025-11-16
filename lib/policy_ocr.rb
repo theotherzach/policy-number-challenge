@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "policy_ocr/checksum"
+require_relative "policy_ocr/entry"
 
 module PolicyOcr
   class MalformedFile < StandardError; end
@@ -22,6 +22,8 @@ module PolicyOcr
       finalize_entry(entry, output_io)
     end
 
+    private
+
     def handle_line(entry, line_body, index, output_io)
       group_index = index % 4
 
@@ -31,9 +33,8 @@ module PolicyOcr
         nil
       else
         validate_separator(line_body, index)
-        num_blocks = create_num_blocks(entry, output_io)
+        output_io.puts(Entry.call(entry))
         entry.fill(nil)
-        num_blocks
       end
     end
 
@@ -41,100 +42,8 @@ module PolicyOcr
       return if entry.compact.empty?
       fail("File ended without enough lines for a full entry (expected 3 data lines)") unless entry.all?
 
-      create_num_blocks(entry, output_io)
+      output_io.puts(Entry.call(entry))
     end
-
-    def create_num_blocks(entry, output_io)
-      num_blocks = []
-      entry.each do |row|
-        row.chars.each_slice(3).with_index do |(*a), i|
-          num_blocks[i] ||= { block: [], resolution: "" }
-          num_blocks[i][:block].push(a)
-        end
-      end
-      num_blocks.each { |nb| resolve_num_block(nb) }
-      output(num_blocks, output_io)
-    end
-
-    def output(num_blocks, output_io)
-      digits = num_blocks.map { |e| e.fetch(:resolution) }.join
-
-      out =
-        if digits.include?("?")
-          "#{digits} ILL"
-        elsif Checksum.valid?(digits)
-          digits
-        else
-          "#{digits} ERR"
-        end
-
-      output_io.puts(out)
-      num_blocks
-    end
-
-    def resolve_num_block(num_block)
-      num_block[:resolution] = digit_map[num_block.fetch(:block)]
-      num_block
-    end
-
-    # rubocop:disable Metrics/AbcSize
-    def digit_map
-      @digit_map ||= Hash.new("?").merge(
-        [
-          " _ ".chars.freeze,
-          "| |".chars.freeze,
-          "|_|".chars.freeze
-        ].freeze => "0",
-        [
-          "   ".chars.freeze,
-          "  |".chars.freeze,
-          "  |".chars.freeze
-        ].freeze => "1",
-        [
-          " _ ".chars.freeze,
-          " _|".chars.freeze,
-          "|_ ".chars.freeze
-        ].freeze => "2",
-        [
-          " _ ".chars.freeze,
-          " _|".chars.freeze,
-          " _|".chars.freeze
-        ].freeze => "3",
-        [
-          "   ".chars.freeze,
-          "|_|".chars.freeze,
-          "  |".chars.freeze
-        ].freeze => "4",
-        [
-          " _ ".chars.freeze,
-          "|_ ".chars.freeze,
-          " _|".chars.freeze
-        ].freeze => "5",
-        [
-          " _ ".chars.freeze,
-          "|_ ".chars.freeze,
-          "|_|".chars.freeze
-        ].freeze => "6",
-        [
-          " _ ".chars.freeze,
-          "  |".chars.freeze,
-          "  |".chars.freeze
-        ].freeze => "7",
-        [
-          " _ ".chars.freeze,
-          "|_|".chars.freeze,
-          "|_|".chars.freeze
-        ].freeze => "8",
-        [
-          " _ ".chars.freeze,
-          "|_|".chars.freeze,
-          " _|".chars.freeze
-        ].freeze => "9"
-      ).freeze
-    end
-    # rubocop:enable Metrics/AbcSize
-
-    private
 
     def validate_filename(filename)
       fail("No input file provided") if filename.nil? || filename.strip.empty?
