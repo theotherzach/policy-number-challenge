@@ -55,18 +55,15 @@ if ["-h", "--help"].include?(ARGV[0])
   exit 0
 end
 
-begin
-  input_filename  = ARGV[0]
-  output_filename = ARGV[1]
+input_filename  = ARGV[0]
+output_filename = ARGV[1]
 
-  if output_filename
-    File.open(output_filename, "w") do |file|
-      PolicyOcr.call(input_filename, file)
-    end
-  else
-    PolicyOcr.call(input_filename)
-  end
+output_io = output_filename ? File.open(output_filename, "w") : $stdout
+begin
+  PolicyOcr.call(input_filename, output_io)
 rescue PolicyOcr::MalformedFile, Errno::ENOENT => e
   warn e.message
   exit 1
+ensure
+  output_io.close if output_filename
 end

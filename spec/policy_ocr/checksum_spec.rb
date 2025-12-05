@@ -20,7 +20,7 @@ RSpec.describe PolicyOcr::Checksum do
       expect(described_class.valid?("457508000")).to be true
     end
 
-    it "returns false for a known non-zero valid policy number" do
+    it "returns false for a known non-zero invalid policy number" do
       expect(described_class.valid?("457508001")).to be false
     end
   end

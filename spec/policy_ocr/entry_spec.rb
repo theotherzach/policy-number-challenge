@@ -61,29 +61,15 @@ RSpec.describe PolicyOcr::Entry do
     end
   end
 
-  describe "digit map" do
-    it "resolves every valid digit block to the correct digit" do
-      digit_map = described_class.send(:digit_map)
-
-      digit_map.each do |block, digit|
-        # build a num_block-like structure to mirror internal usage
-        num_block = { block: block, resolution: "" }
-        resolved  = digit_map[num_block.fetch(:block)]
-
-        expect(resolved).to eq(digit)
-      end
-    end
-
+  describe "DIGIT_MAP" do
     it "returns '?' for an unrecognized block" do
-      digit_map = described_class.send(:digit_map)
-
       invalid_block = [
         "   ".chars,
         "   ".chars,
         "   ".chars
       ]
 
-      expect(digit_map[invalid_block]).to eq("?")
+      expect(described_class::DIGIT_MAP[invalid_block]).to eq("?")
     end
   end
 end

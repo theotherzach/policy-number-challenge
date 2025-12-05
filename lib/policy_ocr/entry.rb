@@ -4,6 +4,60 @@ require_relative "checksum"
 
 module PolicyOcr
   module Entry
+    # Maps 3x3 character grids to digit strings. Unrecognized patterns return "?".
+    DIGIT_MAP = Hash.new("?").merge(
+      [
+        " _ ".chars.freeze,
+        "| |".chars.freeze,
+        "|_|".chars.freeze
+      ].freeze => "0",
+      [
+        "   ".chars.freeze,
+        "  |".chars.freeze,
+        "  |".chars.freeze
+      ].freeze => "1",
+      [
+        " _ ".chars.freeze,
+        " _|".chars.freeze,
+        "|_ ".chars.freeze
+      ].freeze => "2",
+      [
+        " _ ".chars.freeze,
+        " _|".chars.freeze,
+        " _|".chars.freeze
+      ].freeze => "3",
+      [
+        "   ".chars.freeze,
+        "|_|".chars.freeze,
+        "  |".chars.freeze
+      ].freeze => "4",
+      [
+        " _ ".chars.freeze,
+        "|_ ".chars.freeze,
+        " _|".chars.freeze
+      ].freeze => "5",
+      [
+        " _ ".chars.freeze,
+        "|_ ".chars.freeze,
+        "|_|".chars.freeze
+      ].freeze => "6",
+      [
+        " _ ".chars.freeze,
+        "  |".chars.freeze,
+        "  |".chars.freeze
+      ].freeze => "7",
+      [
+        " _ ".chars.freeze,
+        "|_|".chars.freeze,
+        "|_|".chars.freeze
+      ].freeze => "8",
+      [
+        " _ ".chars.freeze,
+        "|_|".chars.freeze,
+        " _|".chars.freeze
+      ].freeze => "9"
+    ).freeze
+
     class << self
       # Parses a 3-row OCR entry and returns the policy number with status.
       #
@@ -102,7 +156,7 @@ module PolicyOcr
 
               candidates << new_digits
 
-              break if candidates.size > 1
+              return candidates if candidates.size > 1
             end
           end
         end
@@ -140,7 +194,7 @@ module PolicyOcr
       #   Example: bad_char_elsewhere?("1?3456789", 2) => true
       #   Example: bad_char_elsewhere?("1?3?56789", 1) => true
       def bad_char_elsewhere?(digits, index)
-        digits.dup.tap { |og| og.slice!(index) }.include?("?")
+        digits.each_char.with_index.any? { |char, i| char == "?" && i != index }
       end
 
       # Attempts to recognize a digit after a single character replacement.
@@ -162,7 +216,7 @@ module PolicyOcr
       def safe_make_digit(block, replacement, row_index, char_index)
         original = block.fetch(row_index).fetch(char_index)
         block[row_index][char_index] = replacement
-        new_digit = digit_map[block]
+        new_digit = DIGIT_MAP[block]
         block[row_index][char_index] = original
         new_digit
       end
@@ -215,7 +269,7 @@ module PolicyOcr
       # @return [String] concatenated digit string
       #   Example: "123456789"
       def resolve_digits(blocks)
-        blocks.map { |block| digit_map[block] }.join
+        blocks.map { |block| DIGIT_MAP[block] }.join
       end
 
       # Determines the error status for a digit string.
@@ -242,71 +296,6 @@ module PolicyOcr
       def format_line(digits, error)
         error ? "#{digits} #{error}" : digits
       end
-
-      # Returns a hash mapping 3x3 character grids to digit strings.
-      # Unrecognized patterns return "?".
-      #
-      # @return [Hash<Array<Array<String>>, String>] mapping of OCR blocks to digits
-      #   Example: digit_map[[[" ","_"," "],
-      #                       ["|"," ","|"],
-      #                       ["|","_","|"]
-      #                       ]] => "0"
-      # rubocop:disable Metrics/AbcSize
-      def digit_map
-        @digit_map ||= Hash.new("?").merge(
-          [
-            " _ ".chars.freeze,
-            "| |".chars.freeze,
-            "|_|".chars.freeze
-          ].freeze => "0",
-          [
-            "   ".chars.freeze,
-            "  |".chars.freeze,
-            "  |".chars.freeze
-          ].freeze => "1",
-          [
-            " _ ".chars.freeze,
-            " _|".chars.freeze,
-            "|_ ".chars.freeze
-          ].freeze => "2",
-          [
-            " _ ".chars.freeze,
-            " _|".chars.freeze,
-            " _|".chars.freeze
-          ].freeze => "3",
-          [
-            "   ".chars.freeze,
-            "|_|".chars.freeze,
-            "  |".chars.freeze
-          ].freeze => "4",
-          [
-            " _ ".chars.freeze,
-            "|_ ".chars.freeze,
-            " _|".chars.freeze
-          ].freeze => "5",
-          [
-            " _ ".chars.freeze,
-            "|_ ".chars.freeze,
-            "|_|".chars.freeze
-          ].freeze => "6",
-          [
-            " _ ".chars.freeze,
-            "  |".chars.freeze,
-            "  |".chars.freeze
-          ].freeze => "7",
-          [
-            " _ ".chars.freeze,
-            "|_|".chars.freeze,
-            "|_|".chars.freeze
-          ].freeze => "8",
-          [
-            " _ ".chars.freeze,
-            "|_|".chars.freeze,
-            " _|".chars.freeze
-          ].freeze => "9"
-        )
-      end
-      # rubocop:enable Metrics/AbcSize
     end
   end
 end
