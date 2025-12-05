@@ -77,16 +77,35 @@ RSpec.describe "CLI features" do
     let(:expected_output) do
       <<~DOC
         000000000
-        111111111 ERR
+        711111111
         222222222 ERR
-        333333333 ERR
+        333393333
         444444444 ERR
-        555555555 ERR
-        666666666 ERR
-        777777777 ERR
-        888888888 ERR
-        999999999 ERR
+        555555555 AMB
+        666666666 AMB
+        777777177
+        888888888 AMB
+        999999999 AMB
         123456789
+      DOC
+    end
+
+    it("prints 11 numbers") do
+      expect(run_script[0]).to eq(expected_output)
+    end
+
+    it("exits with code 0") do
+      expect(run_script[2].exitstatus).to eq(0)
+    end
+  end
+
+  context "with some rows that can be fixed, some not, some AMB" do
+    let(:filename) { "spec/fixtures/fixed.txt" }
+    let(:expected_output) do
+      <<~DOC
+        123456789
+        12345?709 ILL
+        555555555 AMB
       DOC
     end
 

@@ -28,7 +28,7 @@ rspec
 ### User Stories
 
 - [X] User Story 1
-Kin has just recently purchased an ingenious machine to assist in reading policy
+We have just recently purchased an ingenious machine to assist in reading policy
 report documents. The machine scans the paper documents for policy numbers,
 and produces a file with a number of entries which each look like this:
 ```
@@ -84,7 +84,7 @@ one for each input file, in this format:
 
 ---
 
-- [ ] User Story 4
+- [X] User Story 4
 It turns out that often when a number comes back as ERR or ILL it is because the
 scanner has failed to pick up on one pipe or underscore for one of the figures. For
 example

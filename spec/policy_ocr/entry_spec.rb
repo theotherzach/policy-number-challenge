@@ -4,31 +4,60 @@ require_relative "../../lib/policy_ocr/entry"
 
 RSpec.describe PolicyOcr::Entry do
   describe ".call" do
-    let(:entry) do
-      [
-        "    _  _     _  _  _  _  _ ",
-        "  | _| _||_||_ |_   ||_||_|",
-        "  ||_  _|  | _||_|  ||_| _|"
-      ]
+    context "good number" do
+      let(:entry) do
+        [
+          "    _  _     _  _  _  _  _ ",
+          "  | _| _||_||_ |_   ||_||_|",
+          "  ||_  _|  | _||_|  ||_| _|"
+        ]
+      end
+
+      it "returns 9 digits when all blocks are recognized and checksum passes" do
+        expect(described_class.call(entry)).to eq("123456789")
+      end
     end
 
-    it "returns 9 digits when all blocks are recognized and checksum passes" do
-      allow(PolicyOcr::Checksum).to receive(:valid?).with("123456789").and_return(true)
-      expect(described_class.call(entry)).to eq("123456789")
+    context "ERR number" do
+      let(:entry) do
+        [
+          "                           ",
+          "|_||_||_||_||_||_||_||_||_|",
+          "  |  |  |  |  |  |  |  |  |"
+        ]
+      end
+
+      it "appends ILL when digits contain '?'" do
+        expect(described_class.call(entry)).to eq("444444444 ERR")
+      end
     end
 
-    it "appends ERR when checksum fails" do
-      allow(PolicyOcr::Checksum).to receive(:valid?).with("123456789").and_return(false)
-      expect(described_class.call(entry)).to eq("123456789 ERR")
+    context "ILL number" do
+      let(:entry) do
+        [
+          "    _  _     _  _  _  _  _ ",
+          "  | _| _||_||_ |    || ||_|",
+          "  ||_  _|  | _||_|  ||_| _|"
+        ]
+      end
+
+      it "appends ILL when digits contain '?'" do
+        expect(described_class.call(entry)).to eq("12345?709 ILL")
+      end
     end
 
-    it "appends ILL when digits contain '?', without checking checksum" do
-      # Force resolve_digits to simulate an unrecognized block.
-      allow(described_class).to receive(:resolve_digits).and_return("0000000?1")
-      # With a '?', checksum should not even be consulted.
-      expect(PolicyOcr::Checksum).not_to receive(:valid?)
+    context "AMB number" do
+      let(:entry) do
+        [
+          "    _  _     _  _  _  _  _ ",
+          "  | _| _||_||_ | |  || || |",
+          "  ||_  _|  | _||_|  ||_||_|"
+        ]
+      end
 
-      expect(described_class.call(entry)).to eq("0000000?1 ILL")
+      it "appends ERR when checksum fails" do
+        expect(described_class.call(entry)).to eq("123450700 AMB")
+      end
     end
   end
 
