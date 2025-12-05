@@ -16,36 +16,32 @@ module PolicyOcr
       # @return [String] policy number, optionally with error suffix
       #   Example: "123456789", "1234?6789 ILL", "123456789 ERR", "123456789 AMB"
       def call(entry)
-        num_blocks = build_blocks(entry)
-        digits = resolve_digits(num_blocks)
+        blocks = build_blocks(entry)
+        digits = resolve_digits(blocks)
         error = error_for(digits)
         return format_line(digits, error) if error.nil?
 
-        attempt_correction(num_blocks, digits, error)
+        attempt_correction(blocks, digits, error)
       end
 
       private
 
       # Attempts to fix an invalid policy number by trying single-character replacements.
       #
-      # @param num_blocks [Array<Hash>] array of 9 digit block hashes with :block and :char keys
-      #   Example block structure for digit "0":
-      #     {
-      #       block: [
-      #         [" ", "_", " "],
-      #         ["|", " ", "|"],
-      #         ["|", "_", "|"]
-      #       ],
-      #       char: "0"
-      #     }
+      # @param blocks [Array<Array<Array<String>>>] array of 9 3x3 character grids
+      #   Example block for digit "0": [
+      #     [" ", "_", " "],
+      #     ["|", " ", "|"],
+      #     ["|", "_", "|"]
+      #   ]
       # @param orig_digits [String] the original 9-character digit string
       #   Example: "12?456789", "123456788"
       # @param orig_error [String] the original error code
       #   Example: "ILL", "ERR"
       # @return [String] corrected policy number or original with error suffix
       #   Example: "123456789", "12?456789 ILL", "123456789 AMB"
-      def attempt_correction(num_blocks, orig_digits, orig_error)
-        candidates = make_candidates(num_blocks, orig_digits)
+      def attempt_correction(blocks, orig_digits, orig_error)
+        candidates = make_candidates(blocks, orig_digits)
 
         case candidates.size
         when 0
@@ -59,17 +55,16 @@ module PolicyOcr
 
       # Generates all valid candidate corrections for an invalid policy number.
       #
-      # @param num_blocks [Array<Hash>] array of 9 digit block hashes
+      # @param blocks [Array<Array<Array<String>>>] array of 9 3x3 character grids
       # @param orig_digits [String] the original 9-character digit string
       #   Example: "12?456789"
       # @return [Set<String>] set of valid corrected digit strings
       #   Example: Set["123456789"], Set["123456789", "129456789"]
-      def make_candidates(num_blocks, orig_digits)
+      def make_candidates(blocks, orig_digits)
         candidates = Set.new
 
-        num_blocks.each_with_index do |num_block, index|
-          block = num_block.fetch(:block)
-          next if bad_char_elsewhere?(block, index)
+        blocks.each_with_index do |block, index|
+          next if bad_char_elsewhere?(orig_digits, index)
 
           collect_candidates(candidates, block, orig_digits, index)
         end
@@ -188,7 +183,7 @@ module PolicyOcr
         digits_array.join
       end
 
-      # Parses OCR rows into digit block structures.
+      # Parses OCR rows into digit blocks.
       #
       # @param entry [Array<String>] 3-element array of 27-char OCR rows
       #   Example: [
@@ -196,33 +191,31 @@ module PolicyOcr
       #     "  | _| _||_||_ |_   ||_||_|",
       #     "  ||_  _|  | _||_|  ||_| _|"
       #   ]
-      # @return [Array<Hash>] array of 9 digit block hashes
-      #   Example: [{block: [[" "," "," "],["  ","|"],["  ","|"]], char: "1"}, ...]
+      # @return [Array<Array<Array<String>>>] array of 9 3x3 character grids
+      #   Example for digit "1": [
+      #     [" ", " ", " "],
+      #     [" ", " ", "|"],
+      #     [" ", " ", "|"]
+      #   ]
       def build_blocks(entry)
-        num_blocks = []
+        blocks = Array.new(9) { [] }
 
         entry.each do |row|
-          row.chars.each_slice(3).with_index do |(*a), i|
-            num_blocks[i] ||= { block: [], char: "" }
-            num_blocks[i][:block] << a
+          row.chars.each_slice(3).with_index do |chars, i|
+            blocks[i] << chars
           end
         end
 
-        num_blocks.each do |nb|
-          nb[:char] = digit_map[nb[:block]]
-        end
-
-        num_blocks
+        blocks
       end
 
-      # Extracts digit characters from block structures.
+      # Converts blocks to digit characters.
       #
-      # @param num_blocks [Array<Hash>] array of digit block hashes with :char key
-      #   Example: [{block: [...], char: "1"}, {block: [...], char: "2"}, ...]
+      # @param blocks [Array<Array<Array<String>>>] array of 9 3x3 character grids
       # @return [String] concatenated digit string
       #   Example: "123456789"
-      def resolve_digits(num_blocks)
-        num_blocks.map { |b| b[:char] }.join
+      def resolve_digits(blocks)
+        blocks.map { |block| digit_map[block] }.join
       end
 
       # Determines the error status for a digit string.
