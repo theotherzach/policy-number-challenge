@@ -5,15 +5,6 @@ require_relative "checksum"
 module PolicyOcr
   module Entry
     class << self
-      # * if no error, then just return format_line
-      # * otherwise, attempt to fix
-      # * iterate over each block, each row, each character
-      # * get a list of replacements iterate over those
-      # * check to see if the entire digits is valid
-      # * if so, add to a candidates collection
-      # * if 0 candidates, return orig digits & error
-      # * if 1 => return candidates.first, no error
-      # * if > 1 return original digits, AMB error
       def call(entry)
         num_blocks = build_blocks(entry)
         digits = resolve_digits(num_blocks)
@@ -43,39 +34,34 @@ module PolicyOcr
 
         num_blocks.each_with_index do |num_block, index|
           block = num_block.fetch(:block)
-          # 00?0000 and we're at index 0. Because there's a ? at index 3, we'll never get a candidate
-          # at index 1 "0 ?0000000".include?("?") return true
-          # at index 2 "00 0000000".include?("?") return false, no next
-          next if orig_digits.dup.tap { |og| og.slice!(index) }.include?("?")
+          next if bad_char_elsewhere?(block, index)
 
-          block.each_with_index do |row, ri|
-            row.each_with_index do |char, ci|
-              replacements_for(char).each do |replacement|
-                # we want a new digit lookup without duplicating 3 X 3 array
-                original = block.fetch(ri).fetch(ci)
-                block[ri][ci] = replacement
-                new_digit = digit_map[block]
-                block[ri][ci] = original
-
-                next if new_digit == "?"
-
-                # build new_digits
-                digits_array = orig_digits.chars
-                digits_array[index] = new_digit
-                new_digits = digits_array.join
-                error = error_for(new_digits)
-
-                next unless error.nil?
-
-                candidates << new_digits
-
-                break if candidates.size > 1
-              end
-            end
-          end
+          collect_candidates(candidates, block, orig_digits, index)
         end
 
         candidates
+      end
+
+      def collect_candidates(candidates, block, orig_digits, index)
+        block.each_with_index do |row, ri|
+          row.each_with_index do |char, ci|
+            replacements_for(char).each do |replacement|
+              new_digit = safe_make_digit(block, replacement, ri, ci)
+
+              next if new_digit == "?"
+
+              new_digits = build_digit(orig_digits, new_digit, index)
+
+              error = error_for(new_digits)
+
+              next unless error.nil?
+
+              candidates << new_digits
+
+              break if candidates.size > 1
+            end
+          end
+        end
       end
 
       def replacements_for(char)
@@ -89,6 +75,26 @@ module PolicyOcr
         else
           []
         end
+      end
+
+      # at index 1 "0 ?0000000".include?("?") return true, digits cannot be fixed
+      # at index 2 "00 0000000".include?("?") return false, we can attempt to fix
+      def bad_char_elsewhere?(digits, index)
+        digits.dup.tap { |og| og.slice!(index) }.include?("?")
+      end
+
+      def safe_make_digit(block, replacement, row_index, char_index)
+        original = block.fetch(row_index).fetch(char_index)
+        block[row_index][char_index] = replacement
+        new_digit = digit_map[block]
+        block[row_index][char_index] = original
+        new_digit
+      end
+
+      def build_digit(orig_digits, new_digit, index)
+        digits_array = orig_digits.chars
+        digits_array[index] = new_digit
+        digits_array.join
       end
 
       def build_blocks(entry)
