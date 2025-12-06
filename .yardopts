@@ -1,0 +1,6 @@
+--plugin markdown
+--format markdown
+--output-dir docs
+--title "Policy OCR API Documentation"
+lib/**/*.rb
+po.rb

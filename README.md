@@ -1,5 +1,6 @@
 # Policy Number Challenge
 
+[**API Documentation**](docs/index.md)
 
 ## `po.rb` – OCR Policy Number Parser
 
@@ -21,8 +22,17 @@ values along with validation results.
 
 ```bash
 bundle install
-rubocop
-rspec
+bundle exec rubocop
+bundle exec rspec
+```
+
+### Documentation
+
+[API Documentation](docs/index.md) is generated from source code comments using YARD.
+
+To regenerate:
+```bash
+bundle exec yard doc
 ```
 
 ### User Stories

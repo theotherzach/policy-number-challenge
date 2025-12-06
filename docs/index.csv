@@ -1,0 +1,13 @@
+name,type,path
+PolicyOcr,Module,PolicyOcr.md
+PolicyOcr.HELP_TEXT,Constant,PolicyOcr.md#constant-HELP_TEXT
+PolicyOcr.call,Method,PolicyOcr.md#method-c-call
+PolicyOcr.fail,Method,PolicyOcr.md#method-c-fail
+PolicyOcr::Entry,Module,PolicyOcr/Entry.md
+PolicyOcr::Entry.HELP_TEXT,Constant,PolicyOcr/Entry.md#constant-HELP_TEXT
+PolicyOcr::Entry.call,Method,PolicyOcr/Entry.md#method-c-call
+PolicyOcr::Checksum,Module,PolicyOcr/Checksum.md
+PolicyOcr::Checksum.HELP_TEXT,Constant,PolicyOcr/Checksum.md#constant-HELP_TEXT
+PolicyOcr::Checksum.valid?,Method,PolicyOcr/Checksum.md#method-c-valid?
+PolicyOcr::MalformedFile,Class,PolicyOcr/MalformedFile.md
+PolicyOcr::MalformedFile.HELP_TEXT,Constant,PolicyOcr/MalformedFile.md#constant-HELP_TEXT

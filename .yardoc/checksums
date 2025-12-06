@@ -1,0 +1,4 @@
+lib/policy_ocr.rb 5d5c9b9ddd4a7d027fee0dad44e33bfc10fcd588
+lib/policy_ocr/entry.rb ae84833c6ff369e46a2b9c6da86db4bf41c4bb0d
+lib/policy_ocr/checksum.rb 680b032716c70cfdc7f88b6483f9b07bb35dd9b2
+po.rb 77745ed82d0547a1486e58120b299d9210b67cd3
