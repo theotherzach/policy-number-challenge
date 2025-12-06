@@ -4,7 +4,12 @@ require_relative "checksum"
 
 module PolicyOcr
   module Entry
-    # Maps 3x3 character grids to digit strings. Unrecognized patterns return "?".
+    ILL = "ILL"
+    ERR = "ERR"
+    AMB = "AMB"
+    NUM_DIGITS = 9
+    GRID_SIZE = 3
+
     DIGIT_MAP = Hash.new("?").merge(
       [
         " _ ".chars.freeze,
@@ -103,7 +108,7 @@ module PolicyOcr
         when 1
           format_line(candidates.first, nil)
         else
-          format_line(orig_digits, "AMB")
+          format_line(orig_digits, AMB)
         end
       end
 
@@ -252,10 +257,10 @@ module PolicyOcr
       #     [" ", " ", "|"]
       #   ]
       def build_blocks(entry)
-        blocks = Array.new(9) { [] }
+        blocks = Array.new(NUM_DIGITS) { [] }
 
         entry.each do |row|
-          row.chars.each_slice(3).with_index do |chars, i|
+          row.chars.each_slice(GRID_SIZE).with_index do |chars, i|
             blocks[i] << chars
           end
         end
@@ -279,8 +284,8 @@ module PolicyOcr
       # @return [String, nil] error code or nil if valid
       #   Example: nil, "ILL", "ERR"
       def error_for(digits)
-        return "ILL" if digits.include?("?")
-        return "ERR" unless Checksum.valid?(digits)
+        return ILL if digits.include?("?")
+        return ERR unless Checksum.valid?(digits)
 
         nil
       end

@@ -2,6 +2,8 @@
 
 module PolicyOcr
   module Checksum
+    MODULO = 11
+
     class << self
       # Validates a policy number using a weighted checksum algorithm.
       # A policy number is valid if:
@@ -37,7 +39,7 @@ module PolicyOcr
           sum += digit * position
         end
 
-        sum % 11
+        sum % MODULO
       end
     end
   end

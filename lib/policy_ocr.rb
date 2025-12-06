@@ -5,6 +5,10 @@ require_relative "policy_ocr/entry"
 module PolicyOcr
   class MalformedFile < StandardError; end
 
+  ROWS = 3
+  LINES_PER_GROUP = 4
+  ROW_LEN = 27
+
   class << self
     # Raises an error with the given message.
     #
@@ -28,7 +32,7 @@ module PolicyOcr
     def call(filename, output_io = $stdout)
       validate_filename(filename)
 
-      entry = Array.new(3)
+      entry = Array.new(ROWS)
 
       File.foreach(filename).with_index do |line, index|
         handle_line(entry, line.chomp! || line, index, output_io)
@@ -54,9 +58,9 @@ module PolicyOcr
     # @param output_io [IO] the IO object to write parsed results to
     # @return [nil]
     def handle_line(entry, line_body, index, output_io)
-      group_index = index % 4
+      group_index = index % LINES_PER_GROUP
 
-      if group_index < 3
+      if group_index < ROWS
         validate_row(line_body, index)
         entry[group_index] = line_body
         nil
@@ -80,7 +84,7 @@ module PolicyOcr
     # @raise [MalformedFile] if entry is incomplete
     def finalize_entry(entry, output_io)
       return if entry.compact.empty?
-      fail("File ended without enough lines for a full entry (expected 3 data lines)") unless entry.all?
+      fail("File ended without enough lines for a full entry (expected #{ROWS} data lines)") unless entry.all?
 
       output_io.puts(Entry.call(entry))
     end
@@ -104,8 +108,8 @@ module PolicyOcr
     # @return [void]
     # @raise [MalformedFile] if line is invalid
     def validate_row(line_body, index)
-      if line_body.length != 27
-        fail("Line #{index + 1}: expected 27 characters, got #{line_body.length}")
+      if line_body.length != ROW_LEN
+        fail("Line #{index + 1}: expected #{ROW_LEN} characters, got #{line_body.length}")
       elsif !line_body.match?(/\A[ _|]+\z/)
         fail("Line #{index + 1}: invalid characters; only space, '|' and '_' allowed")
       end
